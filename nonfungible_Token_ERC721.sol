@@ -1,6 +1,6 @@
 // referenced: https://medium.com/coinmonks/building-an-erc721-non-fungible-token-smart-contract-and-using-metamask-to-interact-with-it-via-a-59583f0dd6c1
     
-    
+// use pragma solidity ^0.4.24;
     
     
 // reference this library    
@@ -129,19 +129,19 @@ library AddressUtils {
        */
     function isContract(address addr) internal view returns (bool) {
         uint256 size;
-        // XXX Currently there is no better way to check if there is a       
-        // contract in an address
-        // than to check the size of the code at that address.
-        // See https://ethereum.stackexchange.com/a/14016/36603
-        // for more details about how this works.
-        // TODO Check this again before the Serenity release, because
-        // all addresses will be
-        // contracts then.
-        // solium-disable-next-line security/no-inline-assembly
-        
-        assembly { size := extcodesize(addr) }
-        return size > 0;
-}
+            // XXX Currently there is no better way to check if there is a       
+            // contract in an address
+            // than to check the size of the code at that address.
+            // See https://ethereum.stackexchange.com/a/14016/36603
+            // for more details about how this works.
+            // TODO Check this again before the Serenity release, because
+            // all addresses will be
+            // contracts then.
+            // solium-disable-next-line security/no-inline-assembly
+            
+            assembly { size := extcodesize(addr) }
+            return size > 0;
+    }
 }
 
 // OWNABLE CONTRACT FOR ABILITY TO TRANSFER OWNERSHIP OF CONTRACT
