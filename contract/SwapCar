@@ -1,3 +1,6 @@
+
+//nonfungible_Token_ERC721.sol
+
 // referenced: https://medium.com/coinmonks/building-an-erc721-non-fungible-token-smart-contract-and-using-metamask-to-interact-with-it-via-a-59583f0dd6c1
     
 // use pragma solidity ^0.4.24;
@@ -198,7 +201,8 @@ contract Ownable {
 }
 
 
-
+ 
+// WHERE WE CAN VIEW THAT SOMEONE ENTERED A NEW CAR
 //INTERFACE FOR LOOKUP USING erc165 using a lookup table
 /**
  * @title SupportsInterfaceWithLookup
@@ -267,8 +271,8 @@ contract ERC721Basic is ERC165 {
     address indexed _operator,
     bool _approved
   );
-function balanceOf(address _owner) public view returns (uint256 _balance);
-  function ownerOf(uint256 _tokenId) public view returns (address _owner);
+function tokensOwned(address _owner) public view returns (uint256 _balance);
+  function underCareOf(uint256 _tokenId) public view returns (address _owner);
   function exists(uint256 _tokenId) public view returns (bool _exists);
 function approve(address _to, uint256 _tokenId) public;
   function getApproved(uint256 _tokenId)
@@ -276,7 +280,7 @@ function approve(address _to, uint256 _tokenId) public;
 function setApprovalForAll(address _operator, bool _approved) public;
   function isApprovedForAll(address _owner, address _operator)
     public view returns (bool);
-function transferFrom(address _from, address _to, uint256 _tokenId) public;
+function rentalAgreement_transferFrom(address _from, address _to, uint256 _tokenId) public;
   function safeTransferFrom(address _from, address _to, uint256 _tokenId)
     public;
 function safeTransferFrom(
@@ -325,13 +329,13 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
 bytes4 private constant InterfaceId_ERC721 = 0x80ac58cd;
   /*
    * 0x80ac58cd ===
-   *   bytes4(keccak256('balanceOf(address)')) ^
-   *   bytes4(keccak256('ownerOf(uint256)')) ^
+   *   bytes4(keccak256('tokensOwned(address)')) ^
+   *   bytes4(keccak256('underCareOf(uint256)')) ^
    *   bytes4(keccak256('approve(address,uint256)')) ^
    *   bytes4(keccak256('getApproved(uint256)')) ^
    *   bytes4(keccak256('setApprovalForAll(address,bool)')) ^
    *   bytes4(keccak256('isApprovedForAll(address,address)')) ^
-   *   bytes4(keccak256('transferFrom(address,address,uint256)')) ^
+   *   bytes4(keccak256('rentalAgreement_transferFrom(address,address,uint256)')) ^
    *   bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
    *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
    */
@@ -357,8 +361,8 @@ using SafeMath for uint256;
    * @dev Guarantees msg.sender is owner of the given token
    * @param _tokenId uint256 ID of the token to validate its ownership belongs to msg.sender
    */
-  modifier onlyOwnerOf(uint256 _tokenId) {
-    require(ownerOf(_tokenId) == msg.sender);
+  modifier onlyUnderCareOf(uint256 _tokenId) {
+    require(underCareOf(_tokenId) == msg.sender);
     _;
   }
 /**
@@ -381,7 +385,7 @@ constructor()
    * @param _owner address to query the balance of
    * @return uint256 representing the amount owned by the passed address
    */
-  function balanceOf(address _owner) public view returns (uint256) {
+  function tokensOwned(address _owner) public view returns (uint256) {
     require(_owner != address(0));
     return ownedTokensCount[_owner];
   }
@@ -390,7 +394,7 @@ constructor()
    * @param _tokenId uint256 ID of the token to query the owner of
    * @return owner address currently marked as the owner of the given token ID
    */
-  function ownerOf(uint256 _tokenId) public view returns (address) {
+  function underCareOf(uint256 _tokenId) public view returns (address) {
     address owner = tokenOwner[_tokenId];
     require(owner != address(0));
     return owner;
@@ -413,7 +417,7 @@ constructor()
    * @param _tokenId uint256 ID of the token to be approved
    */
   function approve(address _to, uint256 _tokenId) public {
-    address owner = ownerOf(_tokenId);
+    address owner = underCareOf(_tokenId);
     require(_to != owner);
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
 tokenApprovals[_tokenId] = _to;
@@ -462,7 +466,7 @@ tokenApprovals[_tokenId] = _to;
    * @param _to address to receive the ownership of the given token ID
    * @param _tokenId uint256 ID of the token to be transferred
   */
-  function transferFrom(
+  function rentalAgreement_transferFrom(
     address _from,
     address _to,
     uint256 _tokenId
@@ -521,7 +525,7 @@ emit Transfer(_from, _to, _tokenId);
     public
     canTransfer(_tokenId)
   {
-    transferFrom(_from, _to, _tokenId);
+    rentalAgreement_transferFrom(_from, _to, _tokenId);
     // solium-disable-next-line arg-overflow
     require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
   }
@@ -540,7 +544,7 @@ emit Transfer(_from, _to, _tokenId);
     view
     returns (bool)
   {
-    address owner = ownerOf(_tokenId);
+    address owner = underCareOf(_tokenId);
     // Disable solium check because of
     // https://github.com/duaraghav8/Solium/issues/175
     // solium-disable-next-line operator-whitespace
@@ -578,7 +582,7 @@ emit Transfer(_from, _to, _tokenId);
    * @param _tokenId uint256 ID of the token to be transferred
    */
   function clearApproval(address _owner, uint256 _tokenId) internal {
-    require(ownerOf(_tokenId) == _owner);
+    require(underCareOf(_tokenId) == _owner);
     if (tokenApprovals[_tokenId] != address(0)) {
       tokenApprovals[_tokenId] = address(0);
     }
@@ -599,7 +603,7 @@ emit Transfer(_from, _to, _tokenId);
    * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
    */
   function removeTokenFrom(address _from, uint256 _tokenId) internal {
-    require(ownerOf(_tokenId) == _from);
+    require(underCareOf(_tokenId) == _from);
     ownedTokensCount[_from] = ownedTokensCount[_from].sub(1);
     tokenOwner[_tokenId] = address(0);
   }
@@ -711,7 +715,7 @@ bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
     view
     returns (uint256)
   {
-    require(_index < balanceOf(_owner));
+    require(_index < tokensOwned(_owner));
     return ownedTokens[_owner][_index];
   }
 /**
@@ -806,7 +810,7 @@ allTokens.length--;
   }
 }
 
-contract Document is ERC721Token, Ownable {
+contract SwapCarContract is ERC721Token, Ownable {
 /*** EVENTS ***/
   /// The event emitted (useable by web3) when a token is purchased
   event BoughtToken(address indexed buyer, uint256 tokenId);
@@ -828,7 +832,7 @@ contract Document is ERC721Token, Ownable {
   
 /// The description of the token
   mapping(uint256 => string) tokenDescription;
-constructor() ERC721Token("Document", "DQMT") public {
+constructor() ERC721Token("SwapCar", "DQMT") public {
     // any init code when you deploy the contract would run here
   }
 /// Requires the amount of Ether be at least or more of the
@@ -838,7 +842,7 @@ constructor() ERC721Token("Document", "DQMT") public {
 /// @param _type The token type as an integer
 /// @param _title The short title of the token
 /// @param _description Description of the token
-function buyToken (
+function signUp_buyToken (
     uint256 _type,
     string _title,
  string _description
@@ -904,7 +908,10 @@ function myTokens()
       price = currentPrice;
   }
 /// @notice allows the owner of this contract to destroy the ///contract
-   function kill() public {
+   function ownerTerminatesContract_kill() public {
    if(msg.sender == owner) selfdestruct(owner);
    }
+   
+   
+
 }
