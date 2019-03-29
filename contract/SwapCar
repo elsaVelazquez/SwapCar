@@ -1,6 +1,3 @@
-
-//nonfungible_Token_ERC721.sol
-
 // referenced: https://medium.com/coinmonks/building-an-erc721-non-fungible-token-smart-contract-and-using-metamask-to-interact-with-it-via-a-59583f0dd6c1
     
 // use pragma solidity ^0.4.24;
@@ -256,7 +253,7 @@ contract SupportsInterfaceWithLookup is ERC165 {
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721Basic is ERC165 {
-  event Transfer(
+  event carLeasedOut(
     address indexed _from,
     address indexed _to,
     uint256 indexed _tokenId
@@ -274,7 +271,7 @@ contract ERC721Basic is ERC165 {
 function tokensOwned(address _owner) public view returns (uint256 _balance);
   function underCareOf(uint256 _tokenId) public view returns (address _owner);
   function exists(uint256 _tokenId) public view returns (bool _exists);
-function approve(address _to, uint256 _tokenId) public;
+function ownerApprovesRental(address _to, uint256 _tokenId) public;
   function getApproved(uint256 _tokenId)
     public view returns (address _operator);
 function setApprovalForAll(address _operator, bool _approved) public;
@@ -416,7 +413,7 @@ constructor()
    * @param _to address to be approved for the given token ID
    * @param _tokenId uint256 ID of the token to be approved
    */
-  function approve(address _to, uint256 _tokenId) public {
+  function ownerApprovesRental(address _to, uint256 _tokenId) public {
     address owner = underCareOf(_tokenId);
     require(_to != owner);
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
@@ -479,7 +476,7 @@ tokenApprovals[_tokenId] = _to;
 clearApproval(_from, _tokenId);
     removeTokenFrom(_from, _tokenId);
     addTokenTo(_to, _tokenId);
-emit Transfer(_from, _to, _tokenId);
+emit carLeasedOut(_from, _to, _tokenId);
   }
 /**
    * @dev Safely transfers the ownership of a given token ID to another address
@@ -563,7 +560,7 @@ emit Transfer(_from, _to, _tokenId);
   function _mint(address _to, uint256 _tokenId) internal {
     require(_to != address(0));
     addTokenTo(_to, _tokenId);
-    emit Transfer(address(0), _to, _tokenId);
+    emit carLeasedOut(address(0), _to, _tokenId);
   }
 /**
    * @dev Internal function to burn a specific token
@@ -573,7 +570,7 @@ emit Transfer(_from, _to, _tokenId);
   function _burn(address _owner, uint256 _tokenId) internal {
     clearApproval(_owner, _tokenId);
     removeTokenFrom(_owner, _tokenId);
-    emit Transfer(_owner, address(0), _tokenId);
+    emit carLeasedOut(_owner, address(0), _tokenId);
   }
 /**
    * @dev Internal function to clear current approval of a given token ID
@@ -911,7 +908,20 @@ function myTokens()
    function ownerTerminatesContract_kill() public {
    if(msg.sender == owner) selfdestruct(owner);
    }
-   
-   
+}
 
+
+contract tokenMetaData {
+  mapping(uint256 => string) tokenLinks;
+  function carHistoryLink(uint256 _tokenId) public constant returns (string infoUrl) {
+    return tokenLinks[_tokenId];
+  }
+}
+
+
+contract trackOwnerships {
+  mapping(address => mapping(uint256 => uint256)) private ownerTokens;
+  function whoOwnsThisCar(address _owner, uint256 _index) public constant returns (uint tokenId){
+    return ownerTokens[_owner][_index];
+  }
 }
