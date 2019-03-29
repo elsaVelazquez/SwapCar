@@ -829,7 +829,7 @@ contract SwapCarContract is ERC721Token, Ownable {
   
 /// The description of the token
   mapping(uint256 => string) tokenDescription;
-constructor() ERC721Token("SwapCar", "DQMT") public {
+constructor() ERC721Token("SwapCar", "SCT") public payable{
     // any init code when you deploy the contract would run here
   }
 /// Requires the amount of Ether be at least or more of the
@@ -919,9 +919,9 @@ contract tokenMetaData {
 }
 
 
-contract trackOwnerships {
-  mapping(address => mapping(uint256 => uint256)) private ownerTokens;
-  function whoOwnsThisCar(address _owner, uint256 _index) public constant returns (uint tokenId){
-    return ownerTokens[_owner][_index];
-  }
-}
+// contract trackOwnerships {
+//   mapping(address => mapping(uint256 => uint256)) private ownerTokens;
+//   function whoOwnsThisCar(address _owner, uint256 _index) public constant returns (uint tokenId){
+//     return ownerTokens[_owner][_index];
+//   }
+// }
